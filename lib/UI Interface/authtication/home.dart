@@ -2,7 +2,10 @@
 
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
+import 'package:num_verify/UI%20Interface/authtication/add_post.dart';
 
 import 'login.dart';
 
@@ -17,6 +20,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   FirebaseAuth auth = FirebaseAuth.instance;
+
+  final ref = FirebaseDatabase.instance.ref("Post");
 
   @override
   Widget build(BuildContext context) {
@@ -37,17 +42,34 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 30.0),
+      body: Padding(
+        padding:const  EdgeInsets.symmetric(horizontal: 30.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
 
-            Center(child: Text("HomeScreen"))
+            Expanded(
+              child: FirebaseAnimatedList(
+                query: ref,
+                defaultChild: const Center(child: Text("Loading...")),
+                itemBuilder: (context, snapshot, animation,  index){
+                  return ListTile(
+                    title: Text(snapshot.child("title").value.toString()),
+                    subtitle: Text(snapshot.child("id").value.toString()),
+                  );
+                },
+              ),
+            ),
 
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const AddPostScreen()));
+        },
+        child: Icon(Icons.add),
       ),
     );
   }
